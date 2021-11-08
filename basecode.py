@@ -37,6 +37,10 @@ def main():
             ret1, frame1 = capture1.read()
             ret2, frame2 = capture2.read()
             ret3, frame3 = capture3.read()
+            
+            frame1=cv2.resize(frame1,(500,500))
+            frame2=cv2.resize(frame2,(500,500))
+            frame3=cv2.resize(frame3,(500,500))
             # sample feed display from camera 1
             cv2.imshow(windowName, frame1)
             cv2.imshow(windowName1, frame2)
@@ -67,7 +71,7 @@ def main():
 
         capture1 = cv2.VideoCapture("http://192.168.131.216:8080/video")  # laptop's camera
         capture2 = cv2.VideoCapture("http://192.168.131.100:8080/video")
-        capture3 = cv2.VideoCapture("http://192.168.131.100:8080/video")
+        capture3 = cv2.VideoCapture("http://192.168.10.17:8080/video")
         
         width1 = int(capture1.get(3))
         height1 = int(capture1.get(4))
@@ -106,7 +110,9 @@ def main():
             ret2, frame2 = capture2.read()
             ret1,frame1 = capture1.read()
             ret3,frame3 = capture3.read()
-            
+            frame1=cv2.resize(frame1,(500,500))
+            frame2=cv2.resize(frame2,(500,500))
+            frame3=cv2.resize(frame3,(500,500))
             cv2.imshow(windowName2, frame2)
             
             cv2.imshow(windowName1, frame1)
@@ -119,8 +125,6 @@ def main():
                 
                 break
        
-
-        # frame of size is being created and stored in .avi file
         
 
         
