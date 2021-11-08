@@ -15,16 +15,13 @@ def main():
         cv2.namedWindow(windowName1)
         cv2.namedWindow(windowName2)
 
-        capture1 = cv2.VideoCapture("C:/Users/Admin/Downloads/Stream1Recording.avi")  # laptop's camera
-        capture2 = cv2.VideoCapture("C:/Users/Admin/Downloads/Stream2Recording.avi")   # sample code for mobile camera video capture using IP camera
+        capture1 = cv2.VideoCapture("C:/Users/Admin/Downloads/Stream1Recording.avi")  
+        capture2 = cv2.VideoCapture("C:/Users/Admin/Downloads/Stream2Recording.avi")   
         capture3 = cv2.VideoCapture("C:/Users/Admin/Downloads/Stream3Recording.avi")
-        # define size for recorded video frame for video 1
+       
         
 
-        # frame of size is being created and stored in .avi file
-        
-
-        # check if feed exists or not for camera 1
+        # check if feed exists or not for camera 1, 2 and 3
         if capture1.isOpened() and capture2.isOpened() and capture3.isOpened():
             ret1, frame1 = capture1.read()
             ret2, frame2 = capture2.read()
@@ -41,14 +38,14 @@ def main():
             frame1=cv2.resize(frame1,(500,500))
             frame2=cv2.resize(frame2,(500,500))
             frame3=cv2.resize(frame3,(500,500))
-            # sample feed display from camera 1
+            # sample feed display from camera 1, 2 and 3 simultaneously
             cv2.imshow(windowName, frame1)
             cv2.imshow(windowName1, frame2)
             cv2.imshow(windowName2, frame3)
-            # saves the frame from camera 1
+          
             
 
-            # escape key (27) to exit
+            # q key to exit
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
             
@@ -66,10 +63,12 @@ def main():
         # live stream
         windowName1 = "Live Stream Camera 1"
         windowName2 = "Live Stream Camera 2"
+        windowName3 = "Live Stream Camera 3"
         cv2.namedWindow(windowName1)
         cv2.namedWindow(windowName2)
+        cv2.namedWindow(windowName3)
 
-        capture1 = cv2.VideoCapture("http://192.168.131.216:8080/video")  # laptop's camera
+        capture1 = cv2.VideoCapture("http://192.168.131.216:8080/video")  # IP cameras IP addresses
         capture2 = cv2.VideoCapture("http://192.168.131.100:8080/video")
         capture3 = cv2.VideoCapture("http://192.168.10.17:8080/video")
         
@@ -124,13 +123,7 @@ def main():
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 
                 break
-       
-        
-
-        
-        
-
-        # frame of size is being created and stored in .avi file
+       # frame of size is being created and stored in .avi file
         
 
         capture1.release()
