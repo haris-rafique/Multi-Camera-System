@@ -10,6 +10,8 @@ from keras.models import load_model
 model = load_model(r'C:/Users/Admin/Downloads/myymodel11.h5')
 
 face_clsfr=cv2.CascadeClassifier('C:/Users/Admin/Downloads/FaceMask-Detection-master/FaceMask-Detection-master/haarcascade_frontalface_default.xml')
+print("Press 1 for pre-recorded videos, 2 for live stream: ")
+option = int(input())
 
 if option == 2:
     source=cv2.VideoCapture("http://192.168.8.105:8080/video")  #online mode
