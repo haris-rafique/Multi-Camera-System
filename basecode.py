@@ -109,6 +109,9 @@ def main():
             ret2, frame2 = capture2.read()
             ret1,frame1 = capture1.read()
             ret3,frame3 = capture3.read()
+            orig=frame1
+            orig1=frame2
+            orig2=frame3
             frame1=cv2.resize(frame1,(500,500))
             frame2=cv2.resize(frame2,(500,500))
             frame3=cv2.resize(frame3,(500,500))
@@ -116,9 +119,9 @@ def main():
             
             cv2.imshow(windowName1, frame1)
             cv2.imshow(windowName2, frame3)
-            optputFile1.write(frame1)
-            optputFile2.write(frame2)
-            optputFile3.write(frame3)
+            optputFile1.write(orig)
+            optputFile2.write(orig1)
+            optputFile3.write(orig2)
 
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 
