@@ -7,19 +7,19 @@ Created on Sat Nov  6 00:53:28 2021
 import cv2
 import numpy as np
 from keras.models import load_model
-model = load_model(r'C:/Users/Admin/Downloads/myymodel11.h5')
+model = load_model(r'C:/Users/Admin/Downloads/mymodel.h5')
 
-face_clsfr=cv2.CascadeClassifier('C:/Users/Admin/Downloads/FaceMask-Detection-master/FaceMask-Detection-master/haarcascade_frontalface_default.xml')
+face_clsfr=cv2.CascadeClassifier('C:/Users/Admin/Downloads/haarcascade_frontalface_default.xml')
 print("Press 1 for pre-recorded videos, 2 for live stream: ")
 option = int(input())
 
-if option == 2:
+if option == 2:  
     source=cv2.VideoCapture("http://192.168.8.105:8080/video")  #online mode
-    source1 = cv2.VideoCapture("C:/Users/Admin/Desktop/livefeed.mp4")
+    source1 = cv2.VideoCapture("http://192.168.7.105:8080/video")
 
-elif option == 1:
-    source1 = cv2.VideoCapture("C:/Users/Admin/Desktop/livefeed.mp4")
-    source=source1#offline mode
+elif option == 1:  #offline mode
+    source1 = cv2.VideoCapture("C:/Users/Admin/Desktop/livefeed.mp4")  #tested on prerecorded video! 
+    source= cv2.VideoCapture("C:/Users/Admin/Desktop/test1.avi")
 
 
 width1 = int(source.get(3))
@@ -44,19 +44,17 @@ while(True):
 
     ret,img=source.read()
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    faces=face_clsfr.detectMultiScale(gray,1.4,4)
+    faces=face_clsfr.detectMultiScale(gray,1.25,4)
     ret1,img1=source1.read()
     gray1=cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
-    faces1=face_clsfr.detectMultiScale(gray1,1.3,6) 
+    faces1=face_clsfr.detectMultiScale(gray1,1.25,4) 
     
     
     
     FaceArray=[faces,faces1]
     GrayArray=[gray,gray1]
     imgArray=[img,img1]
-    #dupArray=imgArray
-    #dup=cv2.resize(dupArray[0],(900,600))
-    #dup1=cv2.resize(dupArray[1],(900,600))
+  
     for i in range(0,len(FaceArray)):
         
 
