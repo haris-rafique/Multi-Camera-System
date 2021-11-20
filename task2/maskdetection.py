@@ -16,10 +16,12 @@ option = int(input())
 if option == 2:  
     source=cv2.VideoCapture("http://192.168.8.105:8080/video")  #online mode
     source1 = cv2.VideoCapture("http://192.168.7.105:8080/video")
+    source2 = cv2.VideoCapture("http://192.168.9.105:8080/video")
 
 elif option == 1:  #offline mode
     source1 = cv2.VideoCapture("C:/Users/Admin/Desktop/livefeed.mp4")  #tested on prerecorded video! 
     source= cv2.VideoCapture("C:/Users/Admin/Desktop/test1.avi")
+    source2=cv2.VideoCapture("C:/Users/Admin/Desktop/test2.avi")
 
 
 width1 = int(source.get(3))
@@ -30,12 +32,19 @@ width2 = int(source1.get(3))
 height2 = int(source1.get(4))       
 size2 = (width2, height2)
 
+width3 = int(source2.get(3))
+height3 = int(source2.get(4))       
+size3 = (width3, height3)
+
 
 optputFile1 = cv2.VideoWriter(
             'test1.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size1)
         
 optputFile2 = cv2.VideoWriter(
             'test2.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size2)
+
+optputFile3 = cv2.VideoWriter(
+            'test3.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size2)
 
 labels_dict={1:'MASK',0:'NO MASK'}
 color_dict={1:(0,255,0),0:(0,0,255)}
@@ -78,10 +87,12 @@ while(True):
     
         
     
-    cv2.imshow('LIVE',imgArray[0])
-    cv2.imshow('Liv1',imgArray[1])
+    cv2.imshow('Feed1',imgArray[0])
+    cv2.imshow('Feed2',imgArray[1])
+    cv2.imshow('Feed3',imgArray[2])
     optputFile1.write(imgArray[0])
     optputFile2.write(imgArray[1])
+    optputFile3.write(imgArray[2])
     key=cv2.waitKey(1)
     
     if(key==27):
@@ -92,3 +103,5 @@ source.release()
 optputFile1.release()
 source1.release()
 optputFile2.release()
+source2.release()
+optputFile3.release()
