@@ -53,10 +53,10 @@ while(True):
 
     ret,img=source.read()
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    faces=face_clsfr.detectMultiScale(gray,1.25,4)
+    faces=face_clsfr.detectMultiScale(gray,1.23,4)
     ret1,img1=source1.read()
     gray1=cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
-    faces1=face_clsfr.detectMultiScale(gray1,1.25,4) 
+    faces1=face_clsfr.detectMultiScale(gray1,1.23,4) 
     
     
     
