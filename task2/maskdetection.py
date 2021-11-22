@@ -24,6 +24,12 @@ elif option == 1:  #offline mode
     source2=cv2.VideoCapture("C:/Users/Admin/Desktop/test2.avi")
 
 
+else:
+    print("Invalid option entered. Exiting...")
+
+
+
+
 width1 = int(source.get(3))
 height1 = int(source.get(4))
 size1 = (width1, height1)
@@ -32,10 +38,10 @@ width2 = int(source1.get(3))
 height2 = int(source1.get(4))       
 size2 = (width2, height2)
 
+
 width3 = int(source2.get(3))
 height3 = int(source2.get(4))       
 size3 = (width3, height3)
-
 
 optputFile1 = cv2.VideoWriter(
             'test1.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size1)
@@ -44,7 +50,7 @@ optputFile2 = cv2.VideoWriter(
             'test2.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size2)
 
 optputFile3 = cv2.VideoWriter(
-            'test3.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size2)
+            'test3.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size3)
 
 labels_dict={1:'MASK',0:'NO MASK'}
 color_dict={1:(0,255,0),0:(0,0,255)}
@@ -53,15 +59,13 @@ while(True):
 
     ret,img=source.read()
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    faces=face_clsfr.detectMultiScale(gray,1.23,4)
+    faces=face_clsfr.detectMultiScale(gray,1.23,4)   
     ret1,img1=source1.read()
     gray1=cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
-    faces1=face_clsfr.detectMultiScale(gray1,1.23,4) 
+    faces1=face_clsfr.detectMultiScale(gray1,1.23,4) #best til now
     ret2,img2=source2.read()
     gray2=cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
-    faces2=face_clsfr.detectMultiScale(gray2,1.23,4) 
-    
-    
+    faces2=face_clsfr.detectMultiScale(gray2,1.23,4) #best til now
     
     FaceArray=[faces,faces1,faces2]
     GrayArray=[gray,gray1,gray2]
@@ -96,6 +100,7 @@ while(True):
     optputFile1.write(imgArray[0])
     optputFile2.write(imgArray[1])
     optputFile3.write(imgArray[2])
+    
     key=cv2.waitKey(1)
     
     if(key==27):
