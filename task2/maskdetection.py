@@ -57,12 +57,15 @@ while(True):
     ret1,img1=source1.read()
     gray1=cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
     faces1=face_clsfr.detectMultiScale(gray1,1.23,4) 
+    ret2,img2=source2.read()
+    gray2=cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
+    faces2=face_clsfr.detectMultiScale(gray2,1.23,4) 
     
     
     
-    FaceArray=[faces,faces1]
-    GrayArray=[gray,gray1]
-    imgArray=[img,img1]
+    FaceArray=[faces,faces1,faces2]
+    GrayArray=[gray,gray1,gray2]
+    imgArray=[img,img1,img2]
   
     for i in range(0,len(FaceArray)):
         
