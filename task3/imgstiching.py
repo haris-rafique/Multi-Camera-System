@@ -1,126 +1,143 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Nov 18 22:21:28 2021
-
-@author: Admin
-"""
-import imutils
 import numpy as np
 import cv2
 
 
-class Sticher:
-    def __init__(self):
-        self.isv3=imutils.is_cv3
-        self.cachedH=None
+satellite_view=cv2.imread('C:/Users/Admin/Desktop/view.jpg')
+satellite_view=cv2.resize(satellite_view,(0,0),fx=0.2,fy=0.2)
+
+satellite_view_cord = []
+cam_view_cord = [] 
+def satellite_on_EVENT_LBUTTONDOWN(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        xy = "%d,%d" % (x, y)
         
-    def stich(self,images,ratio=0.75,reprojThresh=4.0):
-        (imageB,imageA) = images
-        
-        
-        
-        if self.cachedH is None:
-            (kpsA,featuresA)=self.detectAndDescribe(imageA)
-            (kpsB,featuresB)=self.detectAndDescribe(imageB)
-            M=self.matchKeypoints(kpsA,kpsB,featuresA,featuresB,ratio,reprojThresh)
-            if M is None:
-                return None
-        
-            self.cachedH=M[1]
-        
-        result=cv2.warpPerspective(imageA,self.cachedH,(imageA.shape[1]+imageB.shape[1],imageA.shape[0]))
-        result[0:imageB.shape[0],0:imageA.shape[1]]=imageB
+        satellite_view_cord.append((x, y))
+        cv2.circle(satellite_view, (x, y), 1, (0, 0, 255), thickness=-1)
+        cv2.putText(satellite_view, xy, (x, y), cv2.FONT_HERSHEY_PLAIN,
+                    1.0, (0, 0, 0), thickness=1)
+       
+        cv2.imshow("satellite-view", satellite_view)
+        print("satellite-view",x,y)
         
         
-        return result
+def cam_view_on_EVENT_LBUTTONDOWN(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        xy = "%d,%d" % (x, y)
+        cam_view_cord.append((x, y))
+        cv2.circle(img, (x, y), 1, (0, 0, 255), thickness=-1)
+        cv2.putText(img, xy, (x, y), cv2.FONT_HERSHEY_PLAIN,
+                    1.0, (0, 0, 0), thickness=1)
+        cv2.imshow("cam-view", img)
+        print("cam view",x,y) 
+        
+        
+        
+def getCoordinates(img,satellite_view):  
+    cv2.namedWindow("satellite-view")
+    cv2.setMouseCallback("satellite-view", satellite_on_EVENT_LBUTTONDOWN)
+    cv2.imshow("satellite-view", satellite_view)
+    cv2.namedWindow("cam-view")
+    cv2.setMouseCallback("cam-view", cam_view_on_EVENT_LBUTTONDOWN)
+    cv2.imshow("cam-view", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
-    def detectAndDescribe(self,image):
-        gray=cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-        if self.isv3:
-            descriptor= cv2.SIFT_create()
-            (kps,features)= descriptor.detectAndCompute(image, None)
-        else:
-            detector=cv2.FeatureDetector_create("SIFT")
-            kps=detector.detect(gray)
-            
-            extractor=cv2.DescriptorExtractor_create("SIFT")
-            (kps,features)=extractor.compute(gray,kps)
-            
-        kps= np.float32([kp.pt for kp in kps])
-        
-        return (kps,features)
+
+print("Press 1 for pre-recorded videos, 2 for live stream: ")
+option = int(input())
+
+if option == 2:
+    source1 = cv2.VideoCapture("http://192.168.8.104:8080/video")  #the only difference between task 3 and 4 are the videos; only mapping is left
+    source2 = cv2.VideoCapture("http://192.168.8.103:8080/video")
+    source3=  cv2.VideoCapture(0)
+
+elif option == 1:
+    source1 = cv2.VideoCapture("C:/Users/Admin/Downloads/test1.avi")
+    source2 = cv2.VideoCapture("C:/Users/Admin/Downloads/test2.avi")
+    source3=source1
     
-    def matchKeypoints(self,kpsA, kpsB, featuresA, featuresB, ratio, reprojThresh):
-        matcher = cv2.DescriptorMatcher_create("BruteForce")
-        rawMatches = matcher.knnMatch(featuresA, featuresB, 2)
-        matches=[]
-        for m in rawMatches:
-            if len(m) == 2 and m[0].distance < m[1].distance *ratio:
-                matches.append((m[0].trainIdx, m[0].queryIdx))
-                
-            if len(matches)>4:
-                ptsA= np.float32([kpsA[i] for (_, i) in matches])
-                ptsB = np.float32([kpsB[i] for (i, _) in matches])
-                
-                (H,status)=cv2.findHomography(ptsA,ptsB,cv2.RANSAC,reprojThresh)
-                
-                return (matches,H,status)
-            
-        return None
-                
-                
-            
-        
-        
 
-capture1 = cv2.VideoCapture("C:/Users/Admin/Desktop/vid2.mp4")
-capture2 = cv2.VideoCapture("C:/Users/Admin/Desktop/vid1.mp4")
+else:
+    print("Invalid option entered. Exiting...")
 
-sticher=Sticher()
-ret1,frame1 = capture1.read()
-ret2,frame2 = capture2.read()
 
-if capture1.isOpened() and capture2.isOpened():
-     ret1, frame1 = capture1.read()
-     ret2,frame2= capture2.read()
+if source1.isOpened() and source2.isOpened() and source3.isOpened():
+     ret1, frame1 = source1.read()
+     ret2,frame2=source2.read()
+     ret3,frame3=source3.read()
 else:
     ret1=False
-    
-while True:
-    ret1,frame1 = capture1.read()
-    ret2,frame2 = capture2.read()
-    
-    frame1= cv2.resize(frame1,(0,0),fx=0.4,fy=0.4)
-    frame2= cv2.resize(frame2,(0,0),fx=0.4,fy=0.4)
-    images=[frame1,frame2]
-    
-    
-    result=sticher.stich(images)
-    
-    if result is None:
-        print("Homography cannot be computed")
-        break
-   
-    
-    cv2.imshow("Result",result)
-    cv2.imshow("Left",frame1)
-    cv2.imshow("Right",frame2)
-    
-    key =cv2.waitKey(1) & 0xFF
-    if key == ord('q'):
-        break
-    
-   
+    ret2=False
+    ret3=False
 
+img=frame2 #centre frame is taken
+img=cv2.resize(img,(0,0),fx=0.9,fy=0.9)
+satellite_view_cord = []
+cam_view_cord = []
+    
+if option == 1:
+    getCoordinates(img,satellite_view)
+    target_points_cam1,img_points_cam1=satellite_view_cord,cam_view_cord
+    H=cv2.findHomography(np.array(img_points_cam1),np.array(target_points_cam1))[0]
+    np.save('Hnp',H)
+    
+elif option==2:
+    H=np.load('C:/Users/Admin/Desktop/CVproj/Hnp.npy')
+    
+
+
+size1=(3*satellite_view.shape[1],satellite_view.shape[0])
+
+size2=(satellite_view.shape[1],satellite_view.shape[0])
+size3=size2
+size4=size2
+
+optputFile1 = cv2.VideoWriter(
+            'Stiched1.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size1)
+#optputFile2 = cv2.VideoWriter(
+ #           'top1.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size1)
+#optputFile3 = cv2.VideoWriter(
+ #           'top2.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size1)
+#optputFile3 = cv2.VideoWriter(
+ #           'top3.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size1)
+
+while True:
+    ret1, frame1 = source1.read()
+    ret2,frame2=source2.read()
+    ret3,frame3=source3.read()
+    
+    img_output1 = cv2.warpPerspective(frame1, H, (satellite_view.shape[1],satellite_view.shape[0]))
+    img_output2 = cv2.warpPerspective(frame2, H, (satellite_view.shape[1],satellite_view.shape[0]))
+    img_output3 = cv2.warpPerspective(frame3, H, (satellite_view.shape[1],satellite_view.shape[0]))
+    
+    stiched=np.hstack([img_output1,img_output2,img_output3])   #stiching the view from all 3 cameras to get one total video output
+    
+    cv2.imshow("Top View", img_output1)
+    cv2.imshow("Top View1",img_output2)
+    cv2.imshow("Top View2",img_output3)
+    cv2.imshow("Stiched",stiched)
+    print(img_output1)
+    optputFile1.write(stiched)
+    #optputFile2.write(img_output1)
+    #optputFile3.write(img_output2)
+    #optputFile4.write(img_output3)
     
     
-    
+    if cv2.waitKey(25) & 0xFF == ord('q'):
+        break
+
+
+
+
+source1.release()
+source2.release()
+source3.release()
+optputFile1.release()
+#optputFile2.release()
+#optputFile3.release()
+#optputFile4.release()
 cv2.destroyAllWindows()
-capture1.release()
-        
-capture2.release()
-    
-    
     
     
 
