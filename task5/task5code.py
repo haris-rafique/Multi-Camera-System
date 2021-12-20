@@ -17,12 +17,16 @@ USE_GPU = True
 
 # define the minimum safe distance (in pixels) that two people can be
 # from each other
-MIN_DISTANCE = 70
+MIN_DISTANCE = 170
 
 from scipy.spatial import distance as dist
 import numpy as np
 import cv2
 import os
+
+
+satellite_view=cv2.imread('C:/Users/Admin/Desktop/plan.jpg')
+satellite_view=cv2.resize(satellite_view,(0,0),fx=0.3,fy=0.3)
 
 def detect_people(frame, net, ln, personIdx=0):
 	# grab the dimensions of the frame and  initialize the list of
@@ -128,9 +132,9 @@ if option == 2:
     vs2= cv2.VideoCapture("http://192.168.8.100:8080/video")
 
 elif option == 1:
-    vs = cv2.VideoCapture("C:/Users/Admin/Desktop/CVproj/feed.mp4")
-    vs1=vs
-    vs2=vs
+    vs = cv2.VideoCapture("C:/Users/Admin/Desktop/feedl11.mp4")
+    vs1= cv2.VideoCapture("C:/Users/Admin/Desktop/CVproj/feed.mp4")
+    vs2= cv2.VideoCapture("C:/Users/Admin/Desktop/CVproj/feedr1.mp4")
 
 else:
     print("Invalid option entered. Exiting...")
@@ -140,17 +144,25 @@ else:
 writer=None
 writer1=None
 writer2=None
+
+
+H=np.load('C:/Users/Admin/Desktop/CVproj/Hoff.npy')
+H1=np.load('C:/Users/Admin/Desktop/CVproj/H1off.npy')
+H2=np.load('C:/Users/Admin/Desktop/CVproj/H2off.npy')
+Harray=[H,H1,H2]
 while True:
     (grabbed, frame) = vs.read()
     (grabbed1,frame1) = vs1.read()
     (grabbed2,frame2) = vs2.read()
     
     framearray=[frame,frame1,frame2]
-    if not grabbed or not grabbed1 or not grabbed2:
-        break
+    temp1=framearray
+    #if not grabbed or not grabbed1 or not grabbed2:
+     #   break
     
     for k in range(len(framearray)):
-        framearray[k]=cv2.resize(framearray[k],(0,0),fx=0.4,fy=0.4)
+        temp1=framearray
+        framearray[k]=cv2.resize(framearray[k],(0,0),fx=0.9,fy=0.9)
     
         results = detect_people(framearray[k], net, ln, personIdx=LABELS.index("person"))
     
@@ -172,25 +184,49 @@ while True:
             if i in violate:
                 color=(0,0,255)
             
-            cv2.rectangle(framearray[k], (startX, startY), (endX, endY), color, 2)
-            cv2.circle(framearray[k], (cX, cY), 5, color, 1)
+            #cv2.rectangle(framearray[k], (startX, startY), (endX, endY), color, 2)
+            cv2.circle(temp1[k], (cX, cY), 12, color, -1)
+            #framearray[k]=cv2.resize(framearray[k],(0,0),fx=1.34,fy=1.34)
         
         text = "Social Distancing Violations: {}".format(len(violate))
-        cv2.putText(framearray[k], text, (10, framearray[k].shape[0] - 25), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 0, 255), 3)
+        print(text)
+        #cv2.putText(framearray[1], text, (10, framearray[1].shape[0] - 25), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 0, 255), 3)
+        
+    
+        
+        
+     
+    img_output1 = cv2.warpPerspective(framearray[0], H, (satellite_view.shape[1],satellite_view.shape[0]))
+    img_output2 = cv2.warpPerspective(framearray[1], H1, (satellite_view.shape[1],satellite_view.shape[0]))
+    img_output3 = cv2.warpPerspective(framearray[2], H2, (satellite_view.shape[1],satellite_view.shape[0]))
     
     
-        cv2.imshow("Frame{}".format(k+1), framearray[k])
+    
+    avg1=cv2.addWeighted(img_output1,0.3,img_output3,0.3,0)
+    summation=cv2.addWeighted(avg1,1,img_output2,0.7,0)
+    rr=(np.where(img_output1>0,True,False)) & (np.where(img_output2==0,True,False)) & (np.where(img_output3==0,True,False))
+    rr1=(np.where(img_output2>0,True,False)) & (np.where(img_output1==0,True,False)) & (np.where(img_output3==0,True,False))
+    rr2=(np.where(img_output3>0,True,False)) & (np.where(img_output1==0,True,False)) & (np.where(img_output2==0,True,False))
+    summation[rr]=img_output1[rr]
+    summation[rr1]=img_output2[rr1]
+    summation[rr2]=img_output3[rr2]
+    
+    
+    temp=summation
+    #temp=cv2.resize(temp,(0,0),fx=0.9,fy=0.7)
+    cv2.imshow("Stiched",temp)
+        
     if writer is None:
             
         fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-        writer = cv2.VideoWriter('detection1.avi', fourcc, 15,(framearray[0].shape[1], framearray[0].shape[0]), True)
-        writer1 = cv2.VideoWriter('detection2.avi', fourcc, 15,(framearray[1].shape[1], framearray[1].shape[0]), True)
-        writer2 = cv2.VideoWriter('detection3.avi', fourcc, 15,(framearray[2].shape[1], framearray[2].shape[0]), True)
+        writer = cv2.VideoWriter('detection1.avi', fourcc, 15,(satellite_view.shape[1],satellite_view.shape[0]), True)
+        #writer1 = cv2.VideoWriter('detection2.avi', fourcc, 15,(satellite_view.shape[1],satellite_view.shape[0]), True)
+        #writer2 = cv2.VideoWriter('detection3.avi', fourcc, 15,(satellite_view.shape[1],satellite_view.shape[0]), True)
         
     if writer is not None:
-        writer.write(framearray[0])
-        writer1.write(framearray[1])
-        writer2.write(framearray[2])
+        writer.write(summation)
+        #writer1.write(framearray[1])
+        #writer2.write(framearray[2])
     
     
     
