@@ -7,37 +7,43 @@ Created on Sat Nov  6 00:53:28 2021
 import cv2
 import numpy as np
 from keras.models import load_model
-model = load_model(r'C:/Users/Admin/Downloads/myymodel11.h5')
+model = load_model(r'C:/Users/Admin/Desktop/myymodel.h5')
 
-face_clsfr=cv2.CascadeClassifier('C:/Users/Admin/Downloads/FaceMask-Detection-master/FaceMask-Detection-master/haarcascade_frontalface_default.xml')
+face_clsfr=cv2.CascadeClassifier('C:/Users/Admin/Downloads/FaceMask-Detection-master/haarcascade_frontalface_default.xml')
 print("Press 1 for pre-recorded videos, 2 for live stream: ")
 option = int(input())
 
 if option == 2:
-    source=cv2.VideoCapture(0)  
-    source1 = source
-    source2= cv2.VideoCapture("http://192.168.8.100:8080/video")
+    source=cv2.VideoCapture("http://192.168.8.103:8080/video")
+    source1 = cv2.VideoCapture(0)
+    source2= source
+    H=np.load('C:/Users/Admin/Desktop/CVproj/Hon.npy')
+    H1=np.load('C:/Users/Admin/Desktop/CVproj/H1on.npy')
+    H2=np.load('C:/Users/Admin/Desktop/CVproj/H2on.npy')
 
 elif option == 1:
+    
+    source=cv2.VideoCapture("C:/Users/Admin/Desktop/feedl11.mp4")
     source1 = cv2.VideoCapture("C:/Users/Admin/Desktop/CVproj/feed.mp4")
-    source=source1
-    source2=source1
-
+    source2=cv2.VideoCapture("C:/Users/Admin/Desktop/CVproj/feedr1.mp4")
+    H=np.load('C:/Users/Admin/Desktop/Hoff.npy')
+    H1=np.load('C:/Users/Admin/Desktop/H1off.npy')
+    H2=np.load('C:/Users/Admin/Desktop/H2off.npy')
 else:
     print("Invalid option entered. Exiting...")
 
 
-satellite_view=cv2.imread('C:/Users/Admin/Desktop/view.jpg')
-satellite_view=cv2.resize(satellite_view,(0,0),fx=0.2,fy=0.2)
+satellite_view=cv2.imread('C:/Users/Admin/Desktop/plan.jpg')
+satellite_view=cv2.resize(satellite_view,(0,0),fx=0.3,fy=0.3)
 
 
-size1=(3*satellite_view.shape[1],satellite_view.shape[0])
+size1=(satellite_view.shape[1],satellite_view.shape[0])
 optputFile1 = cv2.VideoWriter(
             'stitchedoutput.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size1)
         
 
 labels_dict={1:'MASK',0:'NO MASK'}
-H=np.load('C:/Users/Admin/Desktop/CVproj/Hnp.npy')
+#H=np.load('C:/Users/Admin/Desktop/CVproj/Hnp.npy')
 color_dict={1:(0,255,0),0:(0,0,255)}
 
 while(True):
@@ -75,23 +81,37 @@ while(True):
             midpoint=((2*x+w)//2,(2*y+h)//2)
             print(midpoint)
             
-            cv2.circle(imgArray[i],midpoint , 5, color_dict[label], thickness=-1)
+            cv2.circle(imgArray[i],midpoint , 10, color_dict[label], thickness=-1)
            
-            cv2.putText(imgArray[i], labels_dict[label], (midpoint[0], midpoint[1]-10),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,255,255),2)
+            cv2.putText(imgArray[i], labels_dict[label], (midpoint[0], midpoint[1]-10),cv2.FONT_HERSHEY_SIMPLEX,0.8,color_dict[label],2)
         
     
     
     img_output1 = cv2.warpPerspective(imgArray[0], H, (satellite_view.shape[1],satellite_view.shape[0]))
-    img_output2 = cv2.warpPerspective(imgArray[1], H, (satellite_view.shape[1],satellite_view.shape[0]))
-    img_output3 = cv2.warpPerspective(imgArray[2], H, (satellite_view.shape[1],satellite_view.shape[0]))
+    img_output2 = cv2.warpPerspective(imgArray[1], H1, (satellite_view.shape[1],satellite_view.shape[0]))
+    img_output3 = cv2.warpPerspective(imgArray[2], H2, (satellite_view.shape[1],satellite_view.shape[0]))
             
-    stiched=np.hstack([img_output1,img_output2,img_output3])
+    #stiched=np.hstack([img_output1,img_output2,img_output3])
+    avg1=cv2.addWeighted(img_output1,0.3,img_output3,0.3,0)
+    summation=cv2.addWeighted(avg1,1,img_output2,0.5,0)
+    r=(np.where(img_output1>0,True,False)) & (np.where(img_output2==0,True,False)) & (np.where(img_output3==0,True,False))
+    r1=(np.where(img_output2>0,True,False)) & (np.where(img_output1==0,True,False)) & (np.where(img_output3==0,True,False))
+    r2=(np.where(img_output3>0,True,False)) & (np.where(img_output1==0,True,False)) & (np.where(img_output2==0,True,False))
+    summation[r]=img_output1[r]
+    summation[r1]=img_output2[r1]
+    summation[r2]=img_output3[r2]
     
+    
+    
+    
+    temp=summation
     cv2.imshow('Feed1',img_output1)
     cv2.imshow('Feed2',img_output2)
     cv2.imshow('Feed3',img_output3)
-    cv2.imshow('Stiched',stiched)
-    optputFile1.write(stiched)
+   
+    temp=cv2.resize(temp,(0,0),fx=0.9,fy=0.7)
+    cv2.imshow("Stiched",temp)
+    optputFile1.write(summation)
    
     
     key=cv2.waitKey(1)
