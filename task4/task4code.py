@@ -23,9 +23,9 @@ if option == 2:
 
 elif option == 1:
     
-    source=cv2.VideoCapture("C:/Users/Admin/Desktop/feedl11.mp4")
-    source1 = cv2.VideoCapture("C:/Users/Admin/Desktop/CVproj/feed.mp4")
-    source2=cv2.VideoCapture("C:/Users/Admin/Desktop/CVproj/feedr1.mp4")
+    source=cv2.VideoCapture("C:/Users/Admin/Desktop/feedl11.mp4")  #left video
+    source1 = cv2.VideoCapture("C:/Users/Admin/Desktop/CVproj/feed.mp4") #middle video
+    source2=cv2.VideoCapture("C:/Users/Admin/Desktop/CVproj/feedr1.mp4") #right video
     H=np.load('C:/Users/Admin/Desktop/Hoff.npy')
     H1=np.load('C:/Users/Admin/Desktop/H1off.npy')
     H2=np.load('C:/Users/Admin/Desktop/H2off.npy')
